@@ -1,0 +1,6 @@
+version: '2'
+services:
+  app:
+    image: gotask:latest 
+    ports:
+      - 8179:8179
