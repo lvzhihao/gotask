@@ -1,6 +1,6 @@
 version: '2'
 services:
   app:
-    image: gotask:latest 
+    image: uhub.service.ucloud.cn/mmzs/gotask:latest 
     ports:
       - 8179:8179
