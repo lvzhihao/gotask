@@ -40,7 +40,10 @@ func (c *Server) Add(taskType, taskTime string, params map[string]interface{}) e
 	default:
 		return errors.New("TaskType Don't Found")
 	}
-	executeTime, _ := time.ParseInLocation("2006-01-02 15:04:05", taskTime, Loc)
+	executeTime, err := time.ParseInLocation("2006-01-02 15:04:05", taskTime, Loc)
+	if err != nil {
+		return errors.New("TaskTime Error")
+	}
 	task.(TaskInterface).SetExecTime(executeTime)
 	task.(TaskInterface).SetParams(params)
 	go func() {
