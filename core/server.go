@@ -44,13 +44,19 @@ func (c *Server) Add(taskType, taskTime string, params map[string]interface{}) e
 	task.(TaskInterface).SetExecTime(executeTime)
 	task.(TaskInterface).SetParams(params)
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				c.log.Error("task recover", zap.Any("panic", r))
+			}
+		}()
 		t := time.After(executeTime.Sub(time.Now()))
 		<-t
 		//run
 		err := task.(TaskInterface).Run()
-		c.log.Info("task status", zap.Any("status", task.(TaskInterface).Status()))
 		if err != nil {
 			c.log.Error("task error", zap.Error(err))
+		} else {
+			c.log.Info("task status", zap.Any("status", task.(TaskInterface).Status()))
 		}
 	}()
 	return nil

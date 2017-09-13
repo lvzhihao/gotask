@@ -70,13 +70,25 @@ func (c *CallBackTask) Run() error {
 
 func (c *CallBackTask) Status() interface{} {
 	//todo 处理
-	b, err := ioutil.ReadAll(c.rsp.Body)
+	var b []byte
+	var err error
+	var status string
+	if c.rsp != nil {
+		b, err = ioutil.ReadAll(c.rsp.Body)
+		status = c.rsp.Status
+	} else {
+		b = []byte("")
+		err = errors.New("empty response")
+		status = ""
+	}
 	return struct {
+		Params map[string]interface{}
 		Status string
 		Body   string
 		err    error
 	}{
-		c.rsp.Status,
+		c.Params,
+		status,
 		goutils.ToString(b),
 		err,
 	}
