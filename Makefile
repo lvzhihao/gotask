@@ -11,3 +11,7 @@ docker-build:
 
 docker-push:
 	sudo docker push edwinlll/gotask:latest
+
+docker-ccr:
+	sudo docker tag edwinlll/gotask:latest ccr.ccs.tencentyun.com/wdwd/gotask
+	sudo docker push ccr.ccs.tencentyun.com/wdwd/gotask
