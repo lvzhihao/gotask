@@ -34,26 +34,22 @@ import (
 )
 
 type ApiResult struct {
-	Code string      `json:"code"`
-	Data interface{} `json:"data"`
+	Code string      `json:"code"` //code: 000000
+	Data interface{} `json:"data"` //result data
 }
 
 type NewTaskInput struct {
-	TaskType string                 `json:"task_type"`
-	TaskTime string                 `json:"task_time"`
-	Params   map[string]interface{} `json:"params"`
+	TaskType string                 `json:"task_type"` //task_type
+	TaskTime string                 `json:"task_time"` //task_exec_time
+	Params   map[string]interface{} `json:"params"`    //task_parasm
+	Durable  bool                   `json:"durable"`   //has_durable
 }
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "gotask start",
+	Long:  `go task console`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var logger *zap.Logger
 		if os.Getenv("DEBUG") == "true" {

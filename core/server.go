@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -9,10 +10,22 @@ import (
 	"go.uber.org/zap"
 )
 
-var Loc *time.Location
+var (
+	DefaultTimeZone string         = "Asia/Shanghai" //default timezone
+	Loc             *time.Location                   //时区
+)
 
 func init() {
-	Loc, _ = time.LoadLocation("Asia/Shanghai")
+	timeZone := os.Getenv("TASK_OS_TIMEZONE")
+	if timeZone == "" {
+		timeZone = DefaultTimeZone
+	}
+	var err error
+	Loc, err = time.LoadLocation(timeZone)
+	if err != nil {
+		// 时区设置错误
+		log.Fatal(err)
+	}
 }
 
 //todo task manager
@@ -49,6 +62,7 @@ func (c *Server) Add(taskType, taskTime string, params map[string]interface{}) e
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
+				//todo call task recover hook
 				c.log.Error("task recover", zap.Any("panic", r))
 			}
 		}()
@@ -57,8 +71,11 @@ func (c *Server) Add(taskType, taskTime string, params map[string]interface{}) e
 		//run
 		err := task.(TaskInterface).Run()
 		if err != nil {
+			//todo call task error hook
 			c.log.Error("task error", zap.Error(err))
 		} else {
+			//log success
+			//todo call task succes hook
 			c.log.Info("task status", zap.Any("status", task.(TaskInterface).Status()))
 		}
 	}()
@@ -66,7 +83,6 @@ func (c *Server) Add(taskType, taskTime string, params map[string]interface{}) e
 }
 
 func (c *Server) Start() {
-
 	select {
 	case cmd := <-c.cmd:
 		switch cmd {
@@ -78,5 +94,7 @@ func (c *Server) Start() {
 }
 
 func (c *Server) Stop() {
+	c.lk.Lock()
+	defer c.lk.Unlock()
 	c.cmd <- "stop"
 }
