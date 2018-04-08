@@ -33,6 +33,12 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	apiTaskTypeMap map[string]int32 = map[string]int32{
+		"callback": core.CallBackTaskType,
+	}
+)
+
 type ApiResult struct {
 	Code string      `json:"code"` //code: 000000
 	Data interface{} `json:"data"` //result data
@@ -60,7 +66,8 @@ var startCmd = &cobra.Command{
 		defer logger.Sync()
 		//app.Logger.SetLevel(log.INFO)
 		app := goutils.NewEcho()
-		server := core.NewServer(logger)
+		core.Logger = logger
+		server := core.NewServer()
 		// action
 		app.POST("/api/task", func(ctx echo.Context) error {
 			//new task
@@ -71,9 +78,13 @@ var startCmd = &cobra.Command{
 				return ctx.JSON(http.StatusOK, ApiResult{Code: "000002", Data: "error input"})
 			}
 			for _, p := range params {
-				err := server.Add(p.TaskType, p.TaskTime, p.Params)
-				if err != nil {
-					logger.Error("add task error", zap.Error(err))
+				if t, ok := apiTaskTypeMap[p.TaskType]; ok {
+					err := server.Add(t, p.TaskTime, p.Params)
+					if err != nil {
+						logger.Error("add task error", zap.Error(err))
+					}
+				} else {
+					logger.Error("task type error", zap.Any("type", p.TaskType))
 				}
 			}
 			return ctx.JSON(http.StatusOK, ApiResult{Code: "000000", Data: "success"})

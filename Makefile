@@ -21,3 +21,8 @@ docker-uhub:
 	sudo docker tag edwinlll/gotask:latest uhub.service.ucloud.cn/mmzs/gotask:latest
 	sudo docker push uhub.service.ucloud.cn/mmzs/gotask:latest
 	sudo docker rmi uhub.service.ucloud.cn/mmzs/gotask:latest
+
+docker-ali:
+	sudo docker tag edwinlll/gotask:latest registry.cn-hangzhou.aliyuncs.com/weishangye/gotask:latest
+	sudo docker push registry.cn-hangzhou.aliyuncs.com/weishangye/gotask:latest
+	sudo docker rmi registry.cn-hangzhou.aliyuncs.com/weishangye/gotask:latest

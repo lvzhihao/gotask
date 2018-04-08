@@ -2,5 +2,15 @@ version: '3'
 services:
   app:
     image: edwinlll/gotask:latest 
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      - DEBUG=true
+    volumes:
+      - /etc/hosts:/etc/hosts
+    command: >
+      sh -c "ln -snf /usr/share/zoneinfo/$${TZ} /etc/localtime &&
+      echo $${TZ} > /etc/timezone &&
+      gotask start"
     ports:
       - 8179:8179

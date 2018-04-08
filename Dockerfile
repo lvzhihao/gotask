@@ -7,6 +7,8 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /usr/local/gotask
 COPY --from=builder /go/src/github.com/lvzhihao/gotask/gotask .
+COPY ./docker-entrypoint.sh  .
 ENV PATH /usr/local/gotask:$PATH
-CMD ["gotask", "start"]
+RUN chmod +x /usr/local/gotask/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/gotask/docker-entrypoint.sh"]
 EXPOSE 8179

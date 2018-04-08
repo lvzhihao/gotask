@@ -28,8 +28,13 @@ func (c *CallBackTask) SetExecTime(t time.Time) {
 	c.ExecuteTime = t
 }
 
-func (c *CallBackTask) SetParams(input map[string]interface{}) {
+func (c *CallBackTask) GetExecTime() time.Time {
+	return c.ExecuteTime
+}
+
+func (c *CallBackTask) SetParams(input map[string]interface{}) error {
 	c.Params = input
+	return nil
 }
 
 func (c *CallBackTask) Run() error {
@@ -80,7 +85,7 @@ func (c *CallBackTask) Status() interface{} {
 	}
 }
 
-func (c *CallBackTask) HookRecover() error {
+func (c *CallBackTask) HookRecover(recover interface{}) error {
 	//todo
 	return nil
 }
