@@ -97,10 +97,10 @@ var startCmd = &cobra.Command{
 			}()
 			return ctx.NoContent(http.StatusOK)
 		})
-		// graceful shutdown
-		go goutils.EchoStartWithGracefulShutdown(app, ":8179")
 		// server
-		server.Start()
+		go server.Start()
+		// graceful shutdown
+		goutils.EchoStartWithGracefulShutdown(app, ":8179")
 	},
 }
 
