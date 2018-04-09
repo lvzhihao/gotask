@@ -40,7 +40,7 @@ func (c *TaskCmd) GetParam(key string) (v interface{}, ok bool) {
 }
 
 func (c *TaskCmd) GetString(key string) string {
-	if v, ok := c.params[key]; ok {
+	if v, ok := c.GetParam(key); ok {
 		return goutils.ToString(v)
 	} else {
 		return ""
@@ -48,7 +48,7 @@ func (c *TaskCmd) GetString(key string) string {
 }
 
 func (c *TaskCmd) GetInt64(key string) int64 {
-	if v, ok := c.params[key]; ok {
+	if v, ok := c.GetParam(key); ok {
 		return goutils.ToInt64(v)
 	} else {
 		return 0
