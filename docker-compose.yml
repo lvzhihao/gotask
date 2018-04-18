@@ -8,9 +8,7 @@ services:
       - DEBUG=true
     volumes:
       - /etc/hosts:/etc/hosts
-    command: >
-      sh -c "ln -snf /usr/share/zoneinfo/$${TZ} /etc/localtime &&
-      echo $${TZ} > /etc/timezone &&
-      gotask start"
+      - ./.gotask.yaml:/usr/local/gotask/.gotask.yaml
+    command: ["start"]
     ports:
       - 8179:8179
