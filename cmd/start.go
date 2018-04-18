@@ -74,16 +74,17 @@ var startCmd = &cobra.Command{
 		var merchants []map[string]interface{}
 		err := viper.UnmarshalKey("merchants", &merchants)
 		if err != nil {
-			logger.Fatal("load merchants error", zap.Error(err))
-		}
-		for _, v := range merchants {
-			var merchant core.Merchant
-			err := json.Unmarshal([]byte(goutils.ToString(v)), &merchant)
-			if err != nil {
-				logger.Fatal("load merchants error", zap.Error(err))
-			} else {
-				core.EnableMerchant(&merchant)
-				logger.Info("load merchant success", zap.Any("merchant", merchant))
+			logger.Error("load merchants warning", zap.Error(err))
+		} else {
+			for _, v := range merchants {
+				var merchant core.Merchant
+				err := json.Unmarshal([]byte(goutils.ToString(v)), &merchant)
+				if err != nil {
+					logger.Error("load merchants error", zap.Error(err), zap.Any("value", v))
+				} else {
+					core.EnableMerchant(&merchant)
+					logger.Info("load merchant success", zap.Any("merchant", merchant))
+				}
 			}
 		}
 		// action
