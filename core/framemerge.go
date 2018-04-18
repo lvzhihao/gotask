@@ -32,6 +32,7 @@ type FrameMergeTask struct {
 	isMerge  bool
 	values   []interface{}
 	merchant *Merchant
+	frame    string
 }
 
 func NewFrameMergeTask() *FrameMergeTask {
@@ -69,10 +70,11 @@ func (c *FrameMergeTask) CheckParams() error {
 	if err != nil {
 		return errors.New("merchant error")
 	}
-	_, ok = c.Params["frame"]
+	frame, ok := c.Params["frame"]
 	if !ok {
 		return errors.New("no frame id")
 	}
+	c.frame = goutils.ToString(frame)
 	timestamp, ok := c.Params["timestamp"]
 	if !ok {
 		return errors.New("no timestamp")
@@ -124,7 +126,7 @@ func (c *FrameMergeTask) SetParams(input map[string]interface{}) error {
 }
 
 func (c *FrameMergeTask) GetFlagId() string {
-	return fmt.Sprintf("%s-%s", c.Params["merchant"], c.Params["frame"])
+	return fmt.Sprintf("%s.%s", c.merchant.MerchantNo, c.frame)
 }
 
 func (c *FrameMergeTask) Run() error {
@@ -146,6 +148,7 @@ func (c *FrameMergeTask) Run() error {
 	p.Set("timestamp", goutils.ToString(timestamp))
 	p.Set("values", goutils.ToString(c.values))
 	p.Set("merchant", c.merchant.MerchantNo)
+	p.Set("frame", c.frame)
 	p.Set("sign", c.Sign(timestamp))
 	req, err := http.NewRequest("POST", goutils.ToString(backurl), bytes.NewBufferString(p.Encode()))
 	if err != nil {
