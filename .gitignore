@@ -19,3 +19,5 @@ main
 *.swp
 *.swa
 *.swo
+
+.gotask.yaml

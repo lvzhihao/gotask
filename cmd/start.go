@@ -30,12 +30,14 @@ import (
 	"github.com/lvzhihao/gotask/core"
 	"github.com/lvzhihao/goutils"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 var (
 	apiTaskTypeMap map[string]int32 = map[string]int32{
-		"callback": core.CallBackTaskType,
+		"callback":   core.CallBackTaskType,
+		"framemerge": core.FrameMergeTaskType,
 	}
 )
 
@@ -68,6 +70,22 @@ var startCmd = &cobra.Command{
 		app := goutils.NewEcho()
 		core.Logger = logger
 		server := core.NewServer()
+		// load merchant
+		var merchants []map[string]interface{}
+		err := viper.UnmarshalKey("merchants", &merchants)
+		if err != nil {
+			logger.Fatal("load merchants error", zap.Error(err))
+		}
+		for _, v := range merchants {
+			var merchant core.Merchant
+			err := json.Unmarshal([]byte(goutils.ToString(v)), &merchant)
+			if err != nil {
+				logger.Fatal("load merchants error", zap.Error(err))
+			} else {
+				core.EnableMerchant(&merchant)
+				logger.Info("load merchant success", zap.Any("merchant", merchant))
+			}
+		}
 		// action
 		app.POST("/api/task", func(ctx echo.Context) error {
 			//new task
@@ -82,9 +100,11 @@ var startCmd = &cobra.Command{
 					err := server.Add(t, p.TaskTime, p.Params)
 					if err != nil {
 						logger.Error("add task error", zap.Error(err))
+						return ctx.JSON(http.StatusOK, ApiResult{Code: "000004", Data: err.Error()})
 					}
 				} else {
 					logger.Error("task type error", zap.Any("type", p.TaskType))
+					return ctx.JSON(http.StatusOK, ApiResult{Code: "000003", Data: "error task type"})
 				}
 			}
 			return ctx.JSON(http.StatusOK, ApiResult{Code: "000000", Data: "success"})

@@ -96,6 +96,8 @@ func (c *TaskManager) CreateTask(taskType int32, taskTime string, params map[str
 	switch taskType {
 	case CallBackTaskType: //http callback
 		task = NewCallBackTask()
+	case FrameMergeTaskType: // frame merge http callback
+		task = NewFrameMergeTask()
 	default:
 		return errors.New("TaskType Don't Found")
 	}

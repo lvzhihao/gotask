@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	CallBackTaskType int32 = 10000
+	CallBackTaskType   int32 = 10000
+	FrameMergeTaskType int32 = 20000
 )
 
 type TaskInterface interface {
