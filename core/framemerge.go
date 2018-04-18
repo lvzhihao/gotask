@@ -159,7 +159,7 @@ func (c *FrameMergeTask) Run() error {
 			req.Header.Set(k, v)
 		}
 	}
-	//req.Header.Add("Content-Type", "application/json;charset=utf-8")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	client := &http.Client{
 		Timeout: 60 * time.Second,
 	}
