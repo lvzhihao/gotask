@@ -91,7 +91,7 @@ func (c *TaskManager) GetBlockInterval() time.Duration {
 	return c.blockInterval
 }
 
-func (c *TaskManager) CreateTask(taskType int32, taskTime string, params map[string]interface{}) error {
+func (c *TaskManager) CreateTask(taskType int32, merchantId, taskTime string, params map[string]interface{}) error {
 	var task interface{}
 	switch taskType {
 	case CallBackTaskType: //http callback
@@ -105,6 +105,7 @@ func (c *TaskManager) CreateTask(taskType int32, taskTime string, params map[str
 	if err != nil {
 		return errors.New("TaskTime Error")
 	}
+	task.(TaskInterface).SetMerchantId(merchantId)
 	task.(TaskInterface).SetExecTime(executeTime)
 	err = task.(TaskInterface).SetParams(params)
 	if err != nil {

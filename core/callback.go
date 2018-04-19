@@ -24,6 +24,10 @@ func NewCallBackTask() *CallBackTask {
 	}
 }
 
+func (c *CallBackTask) SetMerchantId(id string) {
+	c.MerchantId = id
+}
+
 func (c *CallBackTask) SetExecTime(t time.Time) {
 	c.ExecuteTime = t
 }

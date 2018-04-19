@@ -2,15 +2,12 @@ package core
 
 import (
 	"bytes"
-	"crypto/md5"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 
@@ -46,6 +43,10 @@ func NewFrameMergeTask() *FrameMergeTask {
 	}
 }
 
+func (c *FrameMergeTask) SetMerchantId(id string) {
+	c.MerchantId = id
+}
+
 func (c *FrameMergeTask) SetExecTime(t time.Time) {
 	c.ExecuteTime = t
 }
@@ -61,12 +62,11 @@ func (c *FrameMergeTask) UpdateParams(input []interface{}) {
 }
 
 func (c *FrameMergeTask) CheckParams() error {
-	_, ok := c.Params["merchant"]
-	if !ok {
+	if c.MerchantId == "" {
 		return errors.New("no merchant no")
 	}
 	var err error
-	c.merchant, err = LoadMerchant(goutils.ToString(c.Params["merchant"]))
+	c.merchant, err = LoadMerchant(c.MerchantId)
 	if err != nil {
 		return errors.New("merchant error")
 	}
@@ -75,17 +75,19 @@ func (c *FrameMergeTask) CheckParams() error {
 		return errors.New("no frame id")
 	}
 	c.frame = goutils.ToString(frame)
-	timestamp, ok := c.Params["timestamp"]
-	if !ok {
-		return errors.New("no timestamp")
-	}
-	if math.Abs(float64(time.Now().Unix()-goutils.ToInt64(timestamp))) > 600 {
-		return errors.New("timestamp error")
-	}
-	sign, ok := c.Params["sign"]
-	if !ok {
-		return errors.New("no sign")
-	}
+	/*
+		timestamp, ok := c.Params["timestamp"]
+		if !ok {
+			return errors.New("no timestamp")
+		}
+		if math.Abs(float64(time.Now().Unix()-goutils.ToInt64(timestamp))) > 600 {
+			return errors.New("timestamp error")
+		}
+		sign, ok := c.Params["sign"]
+		if !ok {
+			return errors.New("no sign")
+		}
+	*/
 	data, ok := c.Params["values"]
 	if !ok {
 		return errors.New("values must slice type")
@@ -94,14 +96,12 @@ func (c *FrameMergeTask) CheckParams() error {
 	if err != nil {
 		return err
 	} // values 必须是个maps
-	if strings.Compare(strings.ToLower(goutils.ToString(sign)), c.Sign(goutils.ToInt64(timestamp))) != 0 {
-		return errors.New("check sign error")
-	}
+	/*
+		if strings.Compare(strings.ToLower(goutils.ToString(sign)), c.Sign(goutils.ToInt64(timestamp))) != 0 {
+			return errors.New("check sign error")
+		}
+	*/
 	return nil
-}
-
-func (c *FrameMergeTask) Sign(timestamp int64) string {
-	return strings.ToLower(fmt.Sprintf("%x", md5.Sum([]byte(goutils.ToString(timestamp)+c.merchant.MerchantSecret))))
 }
 
 func (c *FrameMergeTask) SetParams(input map[string]interface{}) error {
@@ -143,13 +143,17 @@ func (c *FrameMergeTask) Run() error {
 	if !ok {
 		return errors.New("no callback url")
 	}
+	data, err := json.Marshal(map[string]interface{}{
+		"merchant": c.merchant.MerchantNo,
+		"frame":    c.frame,
+		"values":   c.values,
+	})
+	if err != nil {
+		return err
+	}
 	p := url.Values{}
-	timestamp := time.Now().Unix()
-	p.Set("timestamp", goutils.ToString(timestamp))
-	p.Set("values", goutils.ToString(c.values))
-	p.Set("merchant", c.merchant.MerchantNo)
-	p.Set("frame", c.frame)
-	p.Set("sign", c.Sign(timestamp))
+	p.Set("data", goutils.ToString(data))
+	p.Set("sign", Sign(c.merchant, goutils.ToString(data)))
 	req, err := http.NewRequest("POST", goutils.ToString(backurl), bytes.NewBufferString(p.Encode()))
 	if err != nil {
 		return err

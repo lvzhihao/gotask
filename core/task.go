@@ -1,6 +1,9 @@
 package core
 
 import (
+	"crypto/md5"
+	"fmt"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -12,6 +15,7 @@ var (
 )
 
 type TaskInterface interface {
+	SetMerchantId(string)                   //设置商户ID
 	SetExecTime(time.Time)                  //设置运行时间
 	GetExecTime() time.Time                 //获取运行时间
 	SetParams(map[string]interface{}) error //设置任务参数
@@ -22,10 +26,23 @@ type TaskInterface interface {
 
 type Task struct {
 	Type        int32
+	MerchantId  string
 	CreateTime  time.Time
 	UpdateTime  time.Time
 	ExecuteTime time.Time
 	Params      map[string]interface{}
+}
+
+func Sign(merchant *Merchant, data string) string {
+	return strings.ToLower(fmt.Sprintf("%x", md5.Sum([]byte(data+merchant.MerchantSecret))))
+}
+
+func CheckSign(merchant *Merchant, data, sign string) bool {
+	if strings.Compare(strings.ToLower(sign), Sign(merchant, data)) == 0 {
+		return true
+	} else {
+		return false
+	}
 }
 
 func ExecuteTask(task interface{}) {

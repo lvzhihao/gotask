@@ -59,6 +59,7 @@ var startCmd = &cobra.Command{
 	Short: "gotask start",
 	Long:  `go task console`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// logger
 		var logger *zap.Logger
 		if os.Getenv("DEBUG") == "true" {
 			logger, _ = zap.NewDevelopment()
@@ -66,9 +67,10 @@ var startCmd = &cobra.Command{
 			logger, _ = zap.NewProduction()
 		}
 		defer logger.Sync()
-		//app.Logger.SetLevel(log.INFO)
+		// app.Logger.SetLevel(log.INFO)
 		app := goutils.NewEcho()
 		core.Logger = logger
+		// task server
 		server := core.NewServer()
 		// load merchant
 		var merchants []map[string]interface{}
@@ -91,14 +93,37 @@ var startCmd = &cobra.Command{
 		app.POST("/api/task", func(ctx echo.Context) error {
 			//new task
 			var params []NewTaskInput
-			err := json.Unmarshal([]byte(ctx.FormValue("data")), &params)
-			if err != nil {
-				logger.Error("api error", zap.String("code", "000002"), zap.Error(err))
+			data := ctx.FormValue("data")
+			err := json.Unmarshal([]byte(data), &params)
+			if err != nil || len(params) == 0 {
+				logger.Error("api error", zap.String("code", "000002"), zap.Error(err), zap.Any("params", params))
 				return ctx.JSON(http.StatusOK, ApiResult{Code: "000002", Data: "error input"})
 			}
+			merchantId := ctx.FormValue("merchant_id")
+			// 兼容老程序，只有callback且method get的task可以无需merchant和sign
+			if merchantId != "" {
+				// check sign empty
+				sign := ctx.FormValue("sign")
+				if sign == "" {
+					logger.Error("sign empty", zap.String("merchant_id", merchantId))
+					return ctx.JSON(http.StatusOK, ApiResult{Code: "000006", Data: "sign empty"})
+				}
+				// check merchant
+				merchant, err := core.LoadMerchant(merchantId)
+				if err != nil {
+					logger.Error("merchant error", zap.Error(err), zap.String("merchant_id", merchantId))
+					return ctx.JSON(http.StatusOK, ApiResult{Code: "000005", Data: "merchant error"})
+				}
+				// check sign
+				if core.CheckSign(merchant, data, sign) == false {
+					logger.Error("sign error", zap.Error(err), zap.String("merchant_id", merchantId), zap.Any("params", params), zap.String("sign", sign))
+					return ctx.JSON(http.StatusOK, ApiResult{Code: "000007", Data: "sign error"})
+				}
+			}
+			// check tasks
 			for _, p := range params {
 				if t, ok := apiTaskTypeMap[p.TaskType]; ok {
-					err := server.Add(t, p.TaskTime, p.Params)
+					err := server.Add(t, merchantId, p.TaskTime, p.Params)
 					if err != nil {
 						logger.Error("add task error", zap.Error(err))
 						return ctx.JSON(http.StatusOK, ApiResult{Code: "000004", Data: err.Error()})

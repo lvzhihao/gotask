@@ -41,8 +41,8 @@ func NewServer() *Server {
 	}
 }
 
-func (c *Server) Add(taskType int32, taskTime string, params map[string]interface{}) error {
-	return c.mgr.CreateTask(taskType, taskTime, params)
+func (c *Server) Add(taskType int32, merchantId, taskTime string, params map[string]interface{}) error {
+	return c.mgr.CreateTask(taskType, merchantId, taskTime, params)
 }
 
 func (c *Server) Start() {
