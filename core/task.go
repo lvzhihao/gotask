@@ -25,12 +25,16 @@ type TaskInterface interface {
 }
 
 type Task struct {
-	Type        int32
-	MerchantId  string
-	CreateTime  time.Time
-	UpdateTime  time.Time
-	ExecuteTime time.Time
-	Params      map[string]interface{}
+	TaskId        string
+	Type          int32                  //类型
+	MerchantId    string                 //商户号
+	CreatedTime   time.Time              //创建时间
+	UpdatedTime   time.Time              //更新时间
+	ExecuteTime   time.Time              //执行时间
+	Status        int32                  //状态: 0 未执行 1 执行成功 2 执行失败  4 等待重试
+	RetryCount    int8                   //重试次数
+	NextRetryTime time.Time              //下次重试时间
+	Params        map[string]interface{} //任务参数
 }
 
 func Sign(merchant *Merchant, data string) string {

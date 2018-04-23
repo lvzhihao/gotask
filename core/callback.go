@@ -17,9 +17,9 @@ type CallBackTask struct {
 func NewCallBackTask() *CallBackTask {
 	return &CallBackTask{
 		Task: Task{
-			Type:       CallBackTaskType,
-			CreateTime: time.Now(),
-			Params:     make(map[string]interface{}, 0),
+			Type:        CallBackTaskType,
+			CreatedTime: time.Now(),
+			Params:      make(map[string]interface{}, 0),
 		},
 	}
 }

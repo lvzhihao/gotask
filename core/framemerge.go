@@ -35,9 +35,9 @@ type FrameMergeTask struct {
 func NewFrameMergeTask() *FrameMergeTask {
 	return &FrameMergeTask{
 		Task: Task{
-			Type:       FrameMergeTaskType,
-			CreateTime: time.Now(),
-			Params:     make(map[string]interface{}, 0),
+			Type:        FrameMergeTaskType,
+			CreatedTime: time.Now(),
+			Params:      make(map[string]interface{}, 0),
 		},
 		isMerge: false,
 	}
