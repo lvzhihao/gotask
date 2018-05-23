@@ -23,7 +23,7 @@ func LoadMerchant(key string) (*Merchant, error) {
 	iter, ok := merchantMaps.Load(key)
 	if ok {
 		switch iter.(type) {
-		case *Merchant:
+		case Merchant:
 			m := iter.(Merchant)
 			return &m, nil
 		default:
