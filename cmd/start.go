@@ -84,7 +84,7 @@ var startCmd = &cobra.Command{
 				if err != nil {
 					logger.Error("load merchants error", zap.Error(err), zap.Any("value", v))
 				} else {
-					core.EnableMerchant(&merchant)
+					core.EnableMerchant(merchant)
 					logger.Info("load merchant success", zap.Any("merchant", merchant))
 				}
 			}
