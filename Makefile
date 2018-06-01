@@ -26,3 +26,8 @@ docker-ali:
 	sudo docker tag edwinlll/gotask:latest registry.cn-hangzhou.aliyuncs.com/weishangye/gotask:latest
 	sudo docker push registry.cn-hangzhou.aliyuncs.com/weishangye/gotask:latest
 	sudo docker rmi registry.cn-hangzhou.aliyuncs.com/weishangye/gotask:latest
+
+docker-wdwd:
+	sudo docker tag edwinlll/gotask:latest docker.wdwd.com/wxsq/gotask:latest
+	sudo docker push docker.wdwd.com/wxsq/gotask:latest
+	sudo docker rmi docker.wdwd.com/wxsq/gotask:latest
