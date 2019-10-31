@@ -23,5 +23,6 @@ package main
 import "github.com/lvzhihao/gotask/cmd"
 
 func main() {
+	// cmd
 	cmd.Execute()
 }
