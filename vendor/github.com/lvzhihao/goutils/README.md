@@ -1,2 +1,0 @@
-# goutils
-golang utils

@@ -1,4 +1,5 @@
-FROM golang:1.9 as builder
+FROM golang:1.13 as builder
+ENV GOPROXY https://goproxy.io
 WORKDIR /go/src/github.com/lvzhihao/gotask
 COPY . . 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo .
